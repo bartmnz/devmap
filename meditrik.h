@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdbool.h>
+#include "octTree.h"
 
 #ifndef MEDITRIK_H
 	#define MEDITRIK_H
@@ -214,7 +215,8 @@ struct frame{
 	struct message* msgPtr;
 };
 
-void getMeditrikHeader(FILE*, struct frame*);
+
+struct device* getMeditrikHeader(FILE*, struct frame*);
 void getCommand(FILE*, struct frame*);
 void getStatus(FILE*, struct frame*); 
 void getGps(FILE*, struct frame*);

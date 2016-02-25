@@ -8,7 +8,7 @@
 
 #include "meditrik.h"
 
-
+struct device* decoder(int, const char* argv[]);
 int getMessageType( unsigned char*, int);
 int getSequenceID(unsigned char*, int);
 bool checkEndian(void);
@@ -17,7 +17,7 @@ void evaluatePcap(unsigned char*);
 void stripGlobal(FILE*);
 
 
-int main(int argc, const char* argv[]){
+struct device* decoder(int argc, const char* argv[]){
 	FILE* file;
 	if(argc != 2){ 
 		fprintf(stderr,"Usage = project (FILENAME)\n");
@@ -32,13 +32,31 @@ int main(int argc, const char* argv[]){
 	long position = ftell(file); 
 	char temp;
 	struct frame* frmPtr = malloc(sizeof(struct frame));
+	struct device* device = NULL;
+	struct device* head = NULL;
 	frmPtr->msgPtr = malloc(1477);
 	while( ((temp = fgetc(file)) != EOF) && !quit){
 		memset(frmPtr, 0, sizeof(struct frame)- sizeof(void*));
 		memset(frmPtr->msgPtr, 0, 1477);
 		fseek(file, position, SEEK_SET);
 		quit = stripHeaders(file, frmPtr);
-		getMeditrikHeader(file, frmPtr);
+		
+		
+		// will read through file and create a linked list of all GPS and status
+		// packets with information stored as devices.
+		if (! head ){
+			head = getMeditrikHeader(file, frmPtr);
+			device = head;
+		}else {
+			device->next = getMeditrikHeader(file, frmPtr);
+			if ( device->next ){
+				device = device->next;
+			}
+		}
+		
+		
+		
+		
 		fprintf(stdout,"\n");
 		position = ftell(file);
 	
@@ -46,6 +64,7 @@ int main(int argc, const char* argv[]){
 	free(frmPtr->msgPtr);
 	free(frmPtr);
 	fclose(file);
+	return head;
 }
 
 bool checkEndian(void){

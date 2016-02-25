@@ -87,9 +87,9 @@ struct device* check_bat_level(const char* path, double life){
  * @AUTHOR -- BARTMNZ 
  * @VERSION -- beta
  */
-//int main(int argc, char* argv[]){
-//    if ( argc < 2 || ! argv ){
-//        return 0;
-//    }
-//    return 1;
-//}
+int main(int argc, char* argv[]){
+    if ( argc < 2 || ! argv ){
+        return 0;
+    }
+    return 1;
+}

@@ -2,9 +2,14 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <string.h>
-
+#ifndef OCT_TREE
+    #define OCT_TREE
+    #define STATUS_PACKET 8888888888
 struct device{
-    double altitude;
+    union{
+        double altitude;
+        double battery;
+    };
     double latitude;
     double longitude;
     int device_id;
@@ -45,3 +50,4 @@ void append_list(struct device** list1, struct device* list2);
 void kill_id_list(struct device* list);
 bool out_of_bounds(struct oct_tree* tree, struct device* device);
 void printTree(struct oct_tree* tree, int count);
+#endif //OCT_TREE
