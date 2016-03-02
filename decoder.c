@@ -4,66 +4,62 @@
 #include <arpa/inet.h>
 #include <unistd.h>
 #include <errno.h>
-
-
 #include "meditrik.h"
-
-struct device* decoder(int, const char* argv[]);
-int getMessageType( unsigned char*, int);
-int getSequenceID(unsigned char*, int);
-bool checkEndian(void);
-int stripHeaders(FILE*, struct frame*);
-void evaluatePcap(unsigned char*);
-void stripGlobal(FILE*);
-
 
 struct device* decoder(int argc, const char* argv[]){
 	FILE* file;
-	if(argc != 2){ 
+	if(argc < 2){ 
 		fprintf(stderr,"Usage = project (FILENAME)\n");
 		exit(0);
 	};
-	if(!(file = fopen(argv[1], "rb"))){
-		fprintf(stderr,"ERROR: could not open file\n");
-		exit(0);
-	}
-	stripGlobal(file);
-	bool quit = false;
-	long position = ftell(file); 
-	char temp;
-	struct frame* frmPtr = malloc(sizeof(struct frame));
-	struct device* device = NULL;
 	struct device* head = NULL;
-	frmPtr->msgPtr = malloc(1477);
-	while( ((temp = fgetc(file)) != EOF) && !quit){
-		memset(frmPtr, 0, sizeof(struct frame)- sizeof(void*));
-		memset(frmPtr->msgPtr, 0, 1477);
-		fseek(file, position, SEEK_SET);
-		quit = stripHeaders(file, frmPtr);
-		
-		
-		// will read through file and create a linked list of all GPS and status
-		// packets with information stored as devices.
-		if (! head ){
-			head = getMeditrikHeader(file, frmPtr);
-			device = head;
-		}else {
-			device->next = getMeditrikHeader(file, frmPtr);
-			if ( device->next ){
-				device = device->next;
-			}
+	struct device* device = NULL;
+	for( int i = 1; i < argc; i++ ){
+		if(!(file = fopen(argv[i], "rb"))){
+			fprintf(stderr,"ERROR: could not open file\n");
+			exit(0);
 		}
 		
+		stripGlobal(file);
+		bool quit = false;
+		long position = ftell(file); 
+		char temp;
+		struct frame* frmPtr = malloc(sizeof(struct frame));
 		
+		frmPtr->msgPtr = malloc(1477);
+		while( ((temp = fgetc(file)) != EOF) && !quit){
+			memset(frmPtr, 0, sizeof(struct frame)- sizeof(void*));
+			memset(frmPtr->msgPtr, 0, 1477);
+			fseek(file, position, SEEK_SET);
+			quit = stripHeaders(file, frmPtr);
+			
+			
+			// will read through file and create a linked list of all GPS and status
+			// packets with information stored as devices.
+			if (! head ){
+				head = getMeditrikHeader(file, frmPtr);
+				device = head;
+			}else {
+				//printf("opening %s\n", argv[i]);
+				
+				device->next = getMeditrikHeader(file, frmPtr);
+				if ( device->next ){
+				//	printf("opening %s\n", argv[i]);
+					device = device->next;
+				}
+			}
+			position = ftell(file);
 		
-		
-		fprintf(stdout,"\n");
-		position = ftell(file);
-	
+		}
+		free(frmPtr->msgPtr);
+		free(frmPtr);
+		fclose(file);
 	}
-	free(frmPtr->msgPtr);
-	free(frmPtr);
-	fclose(file);
+	device = head;
+	while (device){
+		printf("(%d) ", device->device_id);
+		device = device->next;
+	}
 	return head;
 }
 

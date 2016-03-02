@@ -2,9 +2,12 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <string.h>
+#include <math.h>
 #ifndef OCT_TREE
     #define OCT_TREE
     #define STATUS_PACKET 8888888888
+    #define EXTRA_NODE 8888888887
+    #define LAT_INCREMENT .00003 // 2.6e-6 degrees latitude ~ 1 foot
 struct device{
     union{
         double altitude;
@@ -40,7 +43,7 @@ struct oct_tree{
     double longitude_min;
 };
 
-void insert (struct oct_tree** tree, struct device* device);
+bool insert (struct oct_tree** tree, struct device* device);
 void initalize_sub_tree(struct oct_tree* tree, int quad);
 void grow_tree(struct oct_tree** tree, struct device* device);
 void oct_tree_destroy(struct oct_tree* tree);

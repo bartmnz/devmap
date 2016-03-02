@@ -4,7 +4,7 @@ CC = gcc
 
 TARGET=devmap
 
-OBJS1=octTree.o devmap.o decoder.o meditrik.o
+OBJS1=octTree.o devmap.o decoder.o meditrik.o graph.o llist.o queue.o
 
 .PHONY: clean debug profile 
 

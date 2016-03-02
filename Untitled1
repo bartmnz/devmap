@@ -1,0 +1,23 @@
+inserting (33.14) alt, (42.99) lati, (-71.46) long
+
+
+graph map
+
+map->nodes == first
+while ( first && first->data != a) {
+    first = first->next;
+}
+if(!first){
+return false;
+}
+
+edge_to_check = first->edges
+while(edge_to_check)
+    if( edge_to_check->node->data == b){
+        return true;
+    }
+    else{
+       edge_to_check = edge_to_check->next
+    }   
+}
+return false;

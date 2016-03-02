@@ -228,4 +228,13 @@ int getIpLen(unsigned char*, int);
 void setUdpHeader(FILE*, struct udpHeader*);
 int printHeader(unsigned char*, int);
 
+
+struct device* decoder(int, const char* argv[]);
+int getMessageType( unsigned char*, int);
+int getSequenceID(unsigned char*, int);
+bool checkEndian(void);
+int stripHeaders(FILE*, struct frame*);
+void evaluatePcap(unsigned char*);
+void stripGlobal(FILE*);
+
 #endif

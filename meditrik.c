@@ -48,7 +48,7 @@ struct device* getMeditrikHeader(FILE* file, struct frame* frmPtr){
 			exit(0);
 		}
 		memset(rValue, 0, sizeof(*rValue));
-		rValue->altitude = frmPtr->gpsPtr.altiDB;
+		rValue->altitude = frmPtr->gpsPtr.altiDB * 6; // medpacket stores data in fathoms
 		rValue->latitude = frmPtr->gpsPtr.latiDB;
 		rValue->longitude = frmPtr->gpsPtr.longDB;
 		rValue->device_id = frmPtr->medPtr.srcIN;
