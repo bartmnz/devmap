@@ -103,6 +103,40 @@ struct ipv4Header{
 	
 	
 };
+struct ipv6Header{
+	union{
+		unsigned char verUC[1];
+		short verSH;
+	};
+	union{
+		unsigned char trafficClass[1];
+		short tcIN;
+	};
+	union{
+		unsigned char flowLabel[3];
+		unsigned int flowIN;
+	};
+	union{
+		unsigned char payLoadLen[2];
+		unsigned short payIN;
+	};
+	union{
+		unsigned char nextHeadder[1];
+		short nextHIN;
+	};
+	union{
+		unsigned char hopLimit[1];
+		short hopIN;
+	};
+	union{
+		unsigned char sourceUC[16];
+		long long sourceLL;
+	};
+	union{
+		unsigned char destIN[16];
+		long long destLL;
+	};
+};
 
 struct udpHeader{
 	union{
@@ -204,7 +238,10 @@ struct message{
 struct frame{
 	struct localHeader locPtr;
 	struct ethernetFrame ethPtr;
-	struct ipv4Header ipPtr;
+	union{
+		struct ipv4Header ipPtr;
+		struct ipv6Header ip6Ptr;
+	};
 	struct udpHeader udpPtr;
 	struct meditrik medPtr;
 	union{
@@ -224,6 +261,7 @@ void getMessage(FILE*, struct frame*);
 void setEthernetHeader(FILE*, struct ethernetFrame*);
 void setIpHeader(FILE*, struct ipv4Header*, int, unsigned char*);
 void printMeditrik(struct frame*, const char *);
+void setIP6header(FILE*, struct ipv6Header*, unsigned char*);
 int getIpLen(unsigned char*, int);
 void setUdpHeader(FILE*, struct udpHeader*);
 int printHeader(unsigned char*, int);

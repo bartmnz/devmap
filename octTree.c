@@ -13,8 +13,8 @@ bool insert (struct oct_tree** tree, struct device* device){
         return false;
     }
     //printTree((*tree),0);
-    // int a;
-    //   scanf("%d", &a);
+     //int a;
+       //scanf("%d", &a);
     // first time through
     if ( (*tree)->status == 0){
         (*tree)->status = 1;
@@ -43,36 +43,44 @@ bool insert (struct oct_tree** tree, struct device* device){
     } else { // otherwise we have to insert into subtree  
             // see comments in tree structure true coresponds to a value such that
             // 1/2(max-min) < value < max;
-        bool altiValue = device->altitude > (*tree)->altitude_min + (((*tree)->altitude_max - 
-                                                    (*tree)->altitude_min)/2);
-        bool latiValue = device->latitude > (*tree)->latitude_min + (((*tree)->latitude_max - 
-                                                    (*tree)->latitude_min)/2);
-        bool longValue = device->longitude > (*tree)->longitude_min + (((*tree)->longitude_max - 
-                                                    (*tree)->longitude_min)/2);
+        bool altiValue = device->altitude >= (*tree)->altitude_min + ((fabs(((*tree)->altitude_max)) - 
+                                                    fabs(((*tree)->altitude_min)))/2);
+        bool latiValue = device->latitude >= (*tree)->latitude_min + ((fabs(((*tree)->latitude_max)) - 
+                                                    fabs(((*tree)->latitude_min)))/2);
+        bool longValue = device->longitude >= (*tree)->longitude_min + ((fabs(((*tree)->longitude_max)) - 
+                                                    fabs(((*tree)->longitude_min)))/2);
         if( altiValue && latiValue && longValue ){
+            //printf("1\n");
             initalize_sub_tree((*tree), 0);
             insert(&(*tree)->sub_tree[0], device);
         }else if( altiValue && latiValue && !longValue ){
+            //printf("2\n");
             initalize_sub_tree((*tree), 1);
             insert(&(*tree)->sub_tree[1], device);//insert in q2
         }else if( altiValue && !latiValue && longValue ){
+            //printf("3\n");
             initalize_sub_tree((*tree), 2);
             insert(&(*tree)->sub_tree[2], device);
         }else if( altiValue && !latiValue && !longValue ){
         //    int a;
         //    scanf("%d", &a);
+           // printf("4\n");
             initalize_sub_tree((*tree), 3);
             insert(&(*tree)->sub_tree[3], device);//insert in q4
         }else if( !altiValue && latiValue && longValue ){
+            //printf("5\n");
             initalize_sub_tree((*tree), 4);
             insert(&(*tree)->sub_tree[4], device);
         }else if( !altiValue && latiValue && !longValue ){
+            //printf("6\n");
             initalize_sub_tree((*tree), 5);
             insert(&(*tree)->sub_tree[5], device);
         }else if( !altiValue && !latiValue && longValue ){
+            //printf("7\n");
             initalize_sub_tree((*tree), 6);
             insert(&(*tree)->sub_tree[6], device);//insert in q7
         }else if( !altiValue && !latiValue && !longValue ){
+            //printf("8\n");
             initalize_sub_tree((*tree), 7);
             insert(&(*tree)->sub_tree[7], device);//insert in q8
         }
@@ -104,32 +112,32 @@ void initalize_sub_tree(struct oct_tree* tree, int quad){
         //set altitude 
         if( (quad+1)<5){
             tree->sub_tree[quad]->altitude_max = tree->altitude_max;
-            tree->sub_tree[quad]->altitude_min = tree->altitude_min + fabs(((tree->altitude_max) - 
+            tree->sub_tree[quad]->altitude_min = tree->altitude_min + ((fabs(tree->altitude_max) - 
                                             fabs(tree->altitude_min))/2);
             //printf("%.2f/n",((tree->altitude_max - 
             //                                tree->altitude_min))/2);
         } else{
-            tree->sub_tree[quad]->altitude_max = tree->altitude_min + fabs(((tree->altitude_max) - 
+            tree->sub_tree[quad]->altitude_max = tree->altitude_min + ((fabs(tree->altitude_max) - 
                                             fabs(tree->altitude_min))/2);
             tree->sub_tree[quad]->altitude_min = tree->altitude_min;
         }
         // set latitude
         if( (quad+1) % 4 == 1 || (quad+1) % 4 == 2){                              
             tree->sub_tree[quad]->latitude_max = tree->latitude_max;
-            tree->sub_tree[quad]->latitude_min = tree->latitude_min + fabs(((tree->latitude_max) - 
+            tree->sub_tree[quad]->latitude_min = tree->latitude_min + ((fabs(tree->latitude_max) - 
                                             fabs(tree->latitude_min))/2);
         } else {
-            tree->sub_tree[quad]->latitude_max = tree->latitude_min + fabs(((tree->latitude_max) - 
+            tree->sub_tree[quad]->latitude_max = tree->latitude_min + ((fabs(tree->latitude_max) - 
                                             fabs(tree->latitude_min))/2);
             tree->sub_tree[quad]->latitude_min = tree->latitude_min;
         }
         // set longitude
         if ( (quad+1) % 2 ){ 
             tree->sub_tree[quad]->longitude_max = tree->longitude_max;
-            tree->sub_tree[quad]->longitude_min = tree->longitude_min + fabs(((tree->longitude_max) - 
+            tree->sub_tree[quad]->longitude_min = tree->longitude_min + ((fabs(tree->longitude_max) - 
                                             fabs(tree->longitude_min))/2);
         }else{
-            tree->sub_tree[quad]->longitude_max = tree->longitude_min + fabs((tree->longitude_max - 
+            tree->sub_tree[quad]->longitude_max = tree->longitude_min + ((fabs(tree->longitude_max) - 
                                             fabs(tree->longitude_min))/2);
             tree->sub_tree[quad]->longitude_min = tree->longitude_min;
         }
@@ -164,35 +172,38 @@ void grow_tree(struct oct_tree** tree, struct device* device){
     // set size params to grow 4x size in direction of new point
     if ( device->altitude < (*tree)->altitude_min){
         bigger->altitude_min = (*tree)->altitude_min - 
-            fabs(((*tree)->altitude_max - (*tree)->altitude_min));
+            (fabs((*tree)->altitude_max) - fabs((*tree)->altitude_min));
         bigger->altitude_max = (*tree)->altitude_max;
-        altiup = false;
+       
     }else{
         bigger->altitude_min = (*tree)->altitude_min;
         bigger->altitude_max = (*tree)->altitude_max + 
-            fabs(((*tree)->altitude_max - (*tree)->altitude_min));
+            (fabs((*tree)->altitude_max) - fabs((*tree)->altitude_min));
+         altiup = false;
     }
     //printf("(%.4f) < (%.4f) %s\n", device->latitude, (*tree)->latitude_min, device->latitude < (*tree)->latitude_min?"true":"false");
     if (device->latitude < (*tree)->latitude_min){
         
         bigger->latitude_min = (*tree)->latitude_min - 
-            fabs(((*tree)->latitude_max - (*tree)->latitude_min));
+            (fabs((*tree)->latitude_max) - fabs((*tree)->latitude_min));
         bigger->latitude_max = (*tree)->latitude_max;
-        latiup = false;
+        
     }else{
         bigger->latitude_min = (*tree)->latitude_min;
         bigger->latitude_max = (*tree)->latitude_max + 
-            fabs(((*tree)->latitude_max - (*tree)->latitude_min));
+            (fabs((*tree)->latitude_max) - fabs((*tree)->latitude_min));
+        latiup = false;
     }
     if ( device->longitude < (*tree)->longitude_min){
         bigger->longitude_min = (*tree)->longitude_min - 
-            fabs(((*tree)->longitude_max - (*tree)->longitude_min));
+            (fabs((*tree)->longitude_max) - fabs((*tree)->longitude_min));
         bigger->longitude_max = (*tree)->longitude_max;
-        longup = false;
+        
     }else{
         bigger->longitude_min = (*tree)->longitude_min;
         bigger->longitude_max = (*tree)->longitude_max + 
-            fabs(((*tree)->longitude_max - (*tree)->longitude_min));
+            (fabs((*tree)->longitude_max) - fabs((*tree)->longitude_min));
+        longup = false;
     }
     if( altiup && latiup && longup ){
         bigger->sub_tree[7] = (*tree);
@@ -224,16 +235,16 @@ void grow_tree(struct oct_tree** tree, struct device* device){
  * @PARAM tree -- oct_tree structure whihc is to be returned to the ether from whence it came.
  * @RETURN -- no return value. 
  */
-void oct_tree_destroy(struct oct_tree* tree){
+void oct_tree_disassemble(struct oct_tree* tree){
     if ( ! tree ){
         return;
     }
-    if (tree->status ==1){
-        kill_id_list(tree->device_ids);
-    }
+//    if (tree->status ==1){
+       // kill_id_list(tree->device_ids);
+  //  }
     if (tree->status == -1){ // if you have initialized subtrees
         for (int i = 0; i < 8 ; i++){
-            oct_tree_destroy(tree->sub_tree[i]);
+            oct_tree_disassemble(tree->sub_tree[i]);
         }
     }
     free(tree);

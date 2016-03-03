@@ -57,7 +57,7 @@ struct device* decoder(int argc, const char* argv[]){
 	}
 	device = head;
 	while (device){
-		printf("(%d) ", device->device_id);
+		//printf("(%d) ", device->device_id);
 		device = device->next;
 	}
 	return head;
@@ -83,10 +83,14 @@ int stripHeaders(FILE* file, struct frame* frmPtr){
 	fread(temp, sizeof(temp), 1, file);
 	frmPtr->ipPtr.nextProtocol[0] = 0;
 	int sizeof_ip = getIpLen(temp, sizeof(temp));
-	setIpHeader(file, &(frmPtr->ipPtr), sizeof_ip, temp);
-	if(frmPtr->ipPtr.nextProtocol[0] != 0x11){
-		fprintf(stderr,"ERROR1\n");
-		return 2;
+	if (sizeof_ip == -1){
+		setIP6header(file, &(frmPtr->ip6Ptr), temp);
+	}else{
+		setIpHeader(file, &(frmPtr->ipPtr), sizeof_ip, temp);
+		if(frmPtr->ipPtr.nextProtocol[0] != 0x11){
+			fprintf(stderr,"ERROR1\n");
+			return 2;
+		}
 	}
 	
 	setUdpHeader(file, &(frmPtr->udpPtr));

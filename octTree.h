@@ -7,7 +7,7 @@
     #define OCT_TREE
     #define STATUS_PACKET 8888888888
     #define EXTRA_NODE 8888888887
-    #define LAT_INCREMENT .00003 // 2.6e-6 degrees latitude ~ 1 foot
+    #define LAT_INCREMENT 1 // 2.6e-6 degrees latitude ~ 1 foot
 struct device{
     union{
         double altitude;
@@ -46,7 +46,7 @@ struct oct_tree{
 bool insert (struct oct_tree** tree, struct device* device);
 void initalize_sub_tree(struct oct_tree* tree, int quad);
 void grow_tree(struct oct_tree** tree, struct device* device);
-void oct_tree_destroy(struct oct_tree* tree);
+void oct_tree_disassemble(struct oct_tree* tree);
 struct device* find_close(struct oct_tree* tree, struct oct_tree* range);
 void clone_list(struct device* list1, struct device* list2);
 void append_list(struct device** list1, struct device* list2);

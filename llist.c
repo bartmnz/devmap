@@ -118,23 +118,25 @@ struct llist* ll_clone(struct llist *l){
 }
 
 struct llist* ll_diff(struct llist *l1, struct llist *l2, bool cmp( void* first,  void* second)){
-	if ( ! l1 || !l2 ){
-		return false;
+	if ( ! l1 ){
+		return NULL;
+	}
+	if (! l2 ){
+		return l1;
 	}
 	struct llist* rValue = NULL;// = ll_create(NULL);
-	bool inThere;
+	struct llist* l2_head = l2;
+	bool inThere = false;
 	while(l1){
 		inThere = false;
+		l2 = l2_head;
 		while(l2){
-		//	printf("1 ");
 			if (cmp(l1->data, l2->data)){
-		//		printf("have match");
 				inThere = true;
 				break;
 			}
 			l2 = l2->next;
 		}
-		//printf("\n");
 		if(!inThere){
 			ll_add(&rValue, l1->data);
 		}

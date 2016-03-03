@@ -73,7 +73,7 @@ void graph_destroy(graph *g)
 		}
 
 		struct node *tmp = curr->next;
-		//free((void*)curr->data);
+		free((void*)curr->data);
 		free(curr);
 
 		curr = tmp;
@@ -82,10 +82,18 @@ void graph_destroy(graph *g)
 	free(g);
 }
 
-bool graph_add_node(graph *g,  void *data)
+bool graph_add_node(graph *g,  void *data, bool cmp(void*,void*))
 {
 	if(!g) {
 		return false;
+	}
+	struct node* head = g->nodes;
+	while (head){
+		if ( cmp(data, head->data)){
+			fprintf(stdout, "ERROR: already in graph \n");
+			return false;
+		}
+		head = head->next;
 	}
 	struct node *new_node = malloc(sizeof(*new_node));
 	memset(new_node, 0, sizeof(*new_node));
@@ -253,7 +261,7 @@ bool graph_remove_edge(graph *g,  void *from,  void *to, bool cmp( void* first, 
 			return false;
 		} else if(cmp(check->to->data, to)) {
 			curr->edges = check->next;
-			printf("removed\n\n");
+		//	printf("removed\n\n");
 			free(check);
 			return true;
 		}
@@ -263,7 +271,7 @@ bool graph_remove_edge(graph *g,  void *from,  void *to, bool cmp( void* first, 
 				struct edge *to_remove = check->next;
 				check->next = to_remove->next;
 				free(to_remove);
-				printf("removed\n\n");
+			//	printf("removed\n\n");
 				return true;
 			}
 
@@ -400,11 +408,11 @@ void print_edges(graph *g){
     struct node* node = g->nodes;
     while( node ){
     	struct device* device = (struct device* ) node->data;
-        printf("(%d) is connected to: ", device->device_id);
+        fprintf(stdout, "(%d) is connected to: ", device->device_id);
         struct edge* temp = node->edges;
         while( temp ){
         	device = (struct device* ) temp->to->data;
-            printf("(%d) ", device->device_id);
+            fprintf(stdout, "(%d) ", device->device_id);
             temp = temp->next;
         }
         printf("\n");
@@ -419,7 +427,7 @@ graph *graph_clone(graph *g1){
 	graph *g2 = graph_create();
 	struct node* nodes = g1->nodes;
 	while (nodes){
-		graph_add_node(g2, nodes->data);
+		graph_add_node(g2, nodes->data, compare_pointers);
 		nodes = nodes->next;
 	}
 	nodes = g1->nodes;

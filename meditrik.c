@@ -114,6 +114,24 @@ void setIpHeader(FILE* file, struct ipv4Header* ipv4Header,int size,
 	}
 }
 
+void setIP6header(FILE* file, struct ipv6Header* ipv6Header, unsigned char* first){
+	ipv6Header->verUC[0] = first[0] & 240;
+	ipv6Header->trafficClass[0] = first[0] & 15;
+	ipv6Header->trafficClass[0] = ipv6Header->trafficClass[0] << 4;
+	unsigned char temp1[3];
+	fread(temp1, 3, 1, file);
+	ipv6Header->flowLabel[0] = temp1[0] & 15;
+	ipv6Header->flowLabel[1] = temp1[1];
+	ipv6Header->flowLabel[2] = temp1[2];
+	ipv6Header->trafficClass[0] = ipv6Header->trafficClass[0] | (temp1[0] >> 4);
+	fread(ipv6Header->payLoadLen, 2, 1, file);
+	fread(ipv6Header->nextHeadder, 1, 1, file);
+	fread(ipv6Header->hopLimit, 1, 1, file);
+	fread(ipv6Header->sourceUC, 16, 1, file);
+	fread(ipv6Header->destIN, 16, 1, file);
+	
+}
+
 int getIpLen(unsigned char* bits, int size){
 	if (size < 0 || bits == NULL){
 		fprintf(stderr, "ERROR: Invalid IP Length");
@@ -122,8 +140,11 @@ int getIpLen(unsigned char* bits, int size){
 	unsigned char leftSide = bits[0] >> 4;
 	if (leftSide == 4){
 		return 4 * (bits[0] & 15);
+	}else if( leftSide == 6){
+		return -1;
 	}else{
-		fprintf(stderr, "ERROR: not IPV4\n");
+		fprintf(stderr, "ERROR: not IPV4 or IPV6\n");
+		exit(0);
 	}
 	return 0;
 }
