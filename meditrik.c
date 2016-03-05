@@ -7,8 +7,9 @@
 #include "meditrik.h"
 
 struct device* getMeditrikHeader(FILE* file, struct frame* frmPtr){
+	//printf("rinning get meditric\n");
 	memset(&(frmPtr->medPtr), 0, sizeof(struct meditrik));
-	unsigned char temp[2];
+	unsigned char temp[2] = {'0','0'};
 	fread(temp, 2, 1, file);
 	frmPtr->medPtr.verIN = 0;
 	frmPtr->medPtr.verUC[0] = temp[0] >> 4;
@@ -18,8 +19,10 @@ struct device* getMeditrikHeader(FILE* file, struct frame* frmPtr){
 	fread(frmPtr->medPtr.lenUC, 2, 1, file);
 	fread(frmPtr->medPtr.srcUC, 4, 1, file);
 	fread(frmPtr->medPtr.dstUC, 4, 1, file);
+	//frmPtr->medPtr.verUC[0] = ntohs(frmPtr->medPtr.verUC[0]);
+	//printf("ptr is %0x2", frmPtr->medPtr.verUC[0]);
 	if(frmPtr->medPtr.verIN != 1){
-		fprintf(stdout,"ERROR: Unsupported version number!\n");
+		fprintf(stdout,"ERROR: Unsupported version number! (%d)\n", frmPtr->medPtr.verIN);
 		return NULL;
 	}
 	frmPtr->medPtr.seqIN = ntohs(frmPtr->medPtr.seqIN);
@@ -111,6 +114,7 @@ void setIpHeader(FILE* file, struct ipv4Header* ipv4Header,int size,
 		fread(ipv4Header->headerCheckSum, 2, 1, file);
 		fread(ipv4Header->sourceAddress, 4, 1, file);
 		fread(ipv4Header->destinationAddress, 4, 1, file);
+		//printf(" dest addr = (%02x)",ipv4Header->dstLN );
 	}
 }
 

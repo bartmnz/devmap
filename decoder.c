@@ -6,6 +6,10 @@
 #include <errno.h>
 #include "meditrik.h"
 
+//NOTE : BUG !! program depends on the size of data being exactally what is expected.
+// it does not take into consideration the length provided in the global or local headers
+// my provide unexpected results as a result.
+
 struct device* decoder(int argc, const char* argv[]){
 	FILE* file;
 	if(argc < 2){ 
