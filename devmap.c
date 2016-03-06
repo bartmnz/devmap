@@ -503,15 +503,24 @@ struct llist *find_biggest_sub_network(graph* map, struct llist* devices){
  * the device has a batery level <= the given threshold
  * @PARAM path -- string representing the path of the file to open.
  * @PARAM life -- battery level threshold 
- * @RETURN -- a list of devices such that (device battery level <= life)
+ * 
  *
  */
-struct device* check_bat_level( char* path, double life){
-    if ( ! path || life < .0001 ){
-        return NULL;
+void check_bat_level( struct device* head, double life){
+    if ( ! head || life < .0001 ){
+        return;
     } 
-    struct device* compile = NULL;
-    return compile;
+    fprintf(stdout, "Low battery devices: \n");
+    while (head){
+        if( (fabs(STATUS_PACKET- head->latitude)) < .1){
+            //we have a battery status packet 
+            if( head->battery - life <.1 ){
+                // battery is less than specified level
+                fprintf(stdout, "(%d)\n", head->device_id);
+            }
+        }
+        head = head->next;
+    }
 }
 
 /* Function checks to see if two devices have the same device id
@@ -685,8 +694,32 @@ int main(int argc, const char* argv[]){
     if ( argc < 2 || ! argv ){
         return 0;
     }
+    struct device* head = NULL;
+    if (!strncmp(argv[1], "-", 1)){
+        if(!strncmp(argv[1], "-P", 2)){
+            
+            head = decoder(argc-2, &argv[2]);
+            double battery = strtod(argv[2], NULL);
+            if ( battery <= 0 || battery > 100){
+                fprintf(stderr, "ERROR: invalid percentage\n need 0 < number < 100");
+                while (head){
+                    struct device* temp = head->next;
+                    free(head);
+                    head = temp;
+                }
+                exit(0);
+            }
+            check_bat_level(head, battery);
+            
+        }
+        else{
+            fprintf(stdout, "ERROR: unrecognized option\n");
+            exit(0);
+        }
+    }else{
+        head = decoder(argc, argv);
+    }
     struct oct_tree* tree = NULL;
-    struct device* head = decoder(argc, argv);
     if (! head || ! head->next ){
         fprintf(stderr, "ERROR: graph should have more than one element.\n ");
         if( head ){
