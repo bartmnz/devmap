@@ -561,7 +561,7 @@ bool compare_device( void* first,  void* second){
  *      not connected by two paths if not valid
  */
 struct llist* is_valid_graph(graph* map, struct llist* devices){
-    if( ! map ){
+    if( ! map || ! devices){
         return NULL;
     }
     struct llist* rValue = NULL;
@@ -612,7 +612,18 @@ struct llist* is_valid_graph(graph* map, struct llist* devices){
    
 }
 
-
+bool is_valid_data(struct device* test){
+    if ( ! test ){
+        return false;
+    }
+    bool rValue = test->altitude > -1500; // dead sea altitude - a little bit
+    if (rValue) rValue = test->altitude < 29500; // mt everest + a bit 
+    if (rValue) rValue = test->latitude > -90; // otherwise silly 
+    if (rValue) rValue = test->latitude < 90; // otherwise silly
+    if (rValue) rValue = test->longitude > -180; // otherwise silly
+    if (rValue) rValue = test->longitude < 180; // otherwise silly
+    return rValue;
+}
 /* Function takes a list of devices and constructs a weighted graph based upon the max
  *      connected distance specified in the file. //possible flourish make distance dynamic
  * @PARAM tree -- OCT-Tree of devices with their gps cordinates to make a graph 
@@ -639,7 +650,7 @@ graph* test_makeGraph(struct device* test, struct oct_tree** tree){
     //    int a;f
     //    scanf("%d", &a);
         if( ! (fabs(STATUS_PACKET- test->latitude) < 1)){
-            if(insert(tree, test)){
+            if(is_valid_data(test) && insert(tree, test)){
                 if (! graph_add_node(map, test, compare_device)){
                     // we already have this device_id in the graph
                     free(test);
@@ -688,6 +699,7 @@ graph* test_makeGraph(struct device* test, struct oct_tree** tree){
         //free(test);
         LOOP:
         test = head;
+        
     }
     
     return map;
@@ -782,6 +794,7 @@ int main(int argc, const char* argv[]){
     ll_disassemble(t_head);
     oct_tree_disassemble(tree);
     graph_destroy(map);
+   
 
     
     return 1;
