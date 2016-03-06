@@ -32,6 +32,10 @@ struct device* getMeditrikHeader(FILE* file, struct frame* frmPtr){
 	struct device* rValue = NULL;
 	if(frmPtr->medPtr.typeIN == 0){
 		getStatus(file, frmPtr);
+		if( frmPtr->udpPtr.srcSH != ntohs(0xDEAD) ){
+			fprintf(stdout, "ERROR: invalid port (%d)\n", htons(frmPtr->udpPtr.srcSH));
+			return rValue;
+		}
 		rValue = malloc(sizeof(*rValue));
 		if ( ! rValue ){
 			fprintf(stdout, "ERROR: malloc failed.\n");
@@ -45,6 +49,10 @@ struct device* getMeditrikHeader(FILE* file, struct frame* frmPtr){
 		getCommand(file, frmPtr);
 	}else if(frmPtr->medPtr.typeIN == 2){
 		getGps(file, frmPtr);
+		if( frmPtr->udpPtr.srcSH != ntohs(0xDEAD) ){
+			fprintf(stdout, "ERROR: invalid port (%d)\n", htons(frmPtr->udpPtr.srcSH));
+			return rValue;
+		}
 		rValue = malloc(sizeof(*rValue));
 		if ( ! rValue ){
 			fprintf(stdout, "ERROR: malloc failed.\n");
@@ -74,7 +82,7 @@ void getCommand(FILE* file, struct frame* frmPtr){
 
 void getStatus(FILE* file, struct frame* frmPtr){ 
 	fread(frmPtr->stsPtr.batUC, 8, 1, file);
-//	frmPtr->stsPtr.batDB = frmPtr->stsPtr.batDB * 100;
+	frmPtr->stsPtr.batDB = frmPtr->stsPtr.batDB * 100;
 	fread(frmPtr->stsPtr.gluUC, 2, 1, file);
 	fread(frmPtr->stsPtr.capUC, 2, 1, file);
 	fread(frmPtr->stsPtr.omoUC, 2, 1, file);
@@ -87,11 +95,11 @@ void getGps(FILE* file, struct frame* frmPtr){
 }
 
 void getMessage(FILE* file, struct frame* frmPtr){
-	unsigned char zero = '\0';
+	//unsigned char zero = '\0';
 	int size = ntohs(frmPtr->medPtr.lenIN);
 	fread(frmPtr->msgPtr->message, size-12, 1, file);
 	frmPtr->msgPtr->message[size-1] = '\n';
-	fprintf(stdout,"Message: %s%c\n", frmPtr->msgPtr->message, zero);
+	//fprintf(stdout,"Message: %s%c\n", frmPtr->msgPtr->message, zero);
 
 }
 

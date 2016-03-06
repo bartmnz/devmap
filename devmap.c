@@ -77,7 +77,7 @@ bool is_connected(struct device* to_check, struct device* against){
  */
 struct llist* dijkstra(graph* map, struct device* point1, struct device* point2){
     if ( ! point1 || ! point2 || ! map ){
-        fprintf(stderr, "ERROR: need datas\n");
+     //   fprintf(stderr, "ERROR: need datas\n");
         return NULL;
     }
     //printf("dijkstra\n");
@@ -296,7 +296,7 @@ struct llist* can_remove(struct graph* g){
     // node count -- edge count check
     // create llist* removed nodes
     // create llist* remaining nodes
-    printf("here");
+   // printf("here");
     struct llist* d_head = devices;
     bool done;
     do{
@@ -511,16 +511,24 @@ void check_bat_level( struct device* head, double life){
         return;
     } 
     fprintf(stdout, "Low battery devices: \n");
+    graph* lowBats = graph_create();
     while (head){
         if( (fabs(STATUS_PACKET- head->latitude)) < .1){
             //we have a battery status packet 
             if( head->battery - life <.1 ){
                 // battery is less than specified level
-                fprintf(stdout, "(%d)\n", head->device_id);
+                graph_add_node(lowBats, head, compare_device);
             }
         }
         head = head->next;
     }
+    struct llist* lb_head = graph_list_nodes(lowBats);
+    while (lb_head){
+        fprintf(stdout, "(%d)\n", ((struct device*)lb_head->data)->device_id);
+        lb_head = lb_head->next;
+    }
+    graph_disassemble(lowBats);
+    
 }
 
 /* Function checks to see if two devices have the same device id
@@ -694,9 +702,10 @@ int main(int argc, const char* argv[]){
     if ( argc < 2 || ! argv ){
         return 0;
     }
+    bool tellanyway = false;
     struct device* head = NULL;
     if (!strncmp(argv[1], "-", 1)){
-        if(!strncmp(argv[1], "-P", 2)){
+        if(!strncmp(argv[1], "-p", 2)){
             
             head = decoder(argc-2, &argv[2]);
             double battery = strtod(argv[2], NULL);
@@ -711,6 +720,9 @@ int main(int argc, const char* argv[]){
             }
             check_bat_level(head, battery);
             
+        }else if(!strncmp(argv[1], "-l", 2) ){
+            head = decoder(argc-1, &argv[1]);
+            tellanyway = true;
         }
         else{
             fprintf(stdout, "ERROR: unrecognized option\n");
@@ -750,13 +762,13 @@ int main(int argc, const char* argv[]){
         }
         burn_with_fire = bwf_head;
         int numNodes = graph_node_count(map); // 
-        if ( changes <= (numNodes /2) ){
-            fprintf(stdout, " remove :");
+        if ( changes <= (numNodes /2) || tellanyway){
+            fprintf(stdout, " remove :\n");
             while(burn_with_fire){
-            fprintf(stdout, " (%d) ", ((struct device*)burn_with_fire->data)->device_id);
+            fprintf(stdout, " (%d) \n", ((struct device*)burn_with_fire->data)->device_id);
             burn_with_fire = burn_with_fire->next;
             }
-        }else{
+        }else {
             fprintf(stdout, " program figured out the answer, " 
                     "but Liam said to just say that too many changes are needed\n" );
         }

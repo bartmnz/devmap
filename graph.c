@@ -90,7 +90,7 @@ bool graph_add_node(graph *g,  void *data, bool cmp(void*,void*))
 	struct node* head = g->nodes;
 	while (head){
 		if ( cmp(data, head->data)){
-			fprintf(stdout, "ERROR: already in graph \n");
+		//	fprintf(stdout, "ERROR: already in graph \n");
 			return false;
 		}
 		head = head->next;

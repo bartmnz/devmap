@@ -89,10 +89,14 @@ int stripHeaders(FILE* file, struct frame* frmPtr){
 	int sizeof_ip = getIpLen(temp, sizeof(temp));
 	if (sizeof_ip == -1){
 		setIP6header(file, &(frmPtr->ip6Ptr), temp);
+		if(frmPtr->ip6Ptr.nextHeadder[0] != 0x11){
+			fprintf(stderr, "ERROR: unsupported protocol.\n");
+			return 2;
+		}
 	}else{
 		setIpHeader(file, &(frmPtr->ipPtr), sizeof_ip, temp);
 		if(frmPtr->ipPtr.nextProtocol[0] != 0x11){
-			fprintf(stderr,"ERROR1\n");
+			fprintf(stderr,"ERROR: unsupported protocol.\n");
 			return 2;
 		}
 	}
