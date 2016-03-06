@@ -769,8 +769,8 @@ int main(int argc, const char* argv[]){
             burn_with_fire = burn_with_fire->next;
             }
         }else {
-            fprintf(stdout, " program figured out the answer, " 
-                    "but Liam said to just say that too many changes are needed\n" );
+            fprintf(stdout, "Liam said to just say that too many changes are needed\n"
+                    " Rerun with -l to display the answer anyway\n" );
         }
         
         printf("\n");
