@@ -327,7 +327,7 @@ struct llist* can_remove(struct graph* g){
                         prev->next = devices;
                     }
                     nodes = graph_node_count(map);
-                    if(nodes == 3){
+                    if(nodes == 2){
                         graph_disassemble(map);
                         devices = d_head;
                         ll_disassemble(al_head);
