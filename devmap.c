@@ -66,7 +66,7 @@ bool is_connected(struct device* to_check, struct device* against){
    // printf("from (%d) to (%d)", to_check->device_id, against->device_id);
    // printf(" distance is : (%.2f)\n", sqrt(distance*distance + altitude*altitude));
     double result = sqrt(distance*distance + altitude*altitude);
-    printf( "(%d) to (%d) is %.2f\n", to_check->device_id, against->device_id, result);
+   // printf( "(%d) to (%d) is %.2f\n", to_check->device_id, against->device_id, result);
     return  (result < 5 && result > .381) ? true : false; // between 5 meters and 1.25 feet
 }
 
@@ -147,7 +147,7 @@ struct llist* dijkstra(graph* map, struct device* point1, struct device* point2)
             ll_disassemble(cur_path);
         }
     }
-    printf("here1");
+    
     while( ! queue_is_empty(the_list)){
         
         ll_disassemble(queue_dequeue(the_list));
@@ -353,7 +353,7 @@ struct llist* can_remove(struct graph* g){
                         devices = d_head;
                         ll_disassemble(d_head);
                         //ll_disassemble(al_head);
-                        printf("here\n");
+                        
                         //ll_destroy(removed);
                         return removed;
                         //return devices;
@@ -370,7 +370,7 @@ struct llist* can_remove(struct graph* g){
             devices = d_head;
             nodes = graph_node_count(map);
         }else {
-            printf("here\n");
+            
             graph_disassemble(map);
             ll_disassemble(d_head);
             //ll_disassemble(removed);
@@ -625,11 +625,11 @@ struct llist* is_valid_graph(graph* map, struct llist* devices){
         
         // check to see if remaining elements are doubly connected
         while( to_check ){
-            printf ("here (%d) - (%d)\n", ((struct device*)to_check->data)->device_id, 
-                        ((struct device*)devices->data)->device_id);
+            //printf ("here (%d) - (%d)\n", ((struct device*)to_check->data)->device_id, 
+              //          ((struct device*)devices->data)->device_id);
             if ( ! two_paths(map, to_check->data, devices->data)){
                     // found 2 not doubbly connected return them
-                    printf ("here\n");
+                    //printf ("here\n");
                 ll_add(&rValue, to_check->data);
                 ll_add(&rValue, devices->data);
 
@@ -680,7 +680,7 @@ graph* test_makeGraph(struct device* test, struct oct_tree** tree){
     while (test){
         head = head->next;
         test->next=NULL;
-        printf("inserting (%d) \n", test->device_id);
+     //   printf("inserting (%d) \n", test->device_id);
 //        printf("(%.6f) alt, (%.8f) lati, (%.8f) long\n", test->altitude, test->latitude, test->longitude);
    //     printTree((*tree), 0);
     //    int a;f
