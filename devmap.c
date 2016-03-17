@@ -173,6 +173,7 @@ bool two_paths(graph* map, struct device* point1,  struct device* point2){
     if (hops == 2){
         //printf("here1234\n");
         ll_disassemble(p1_head);
+        
         return true;
     }
     path1 = p1_head;
@@ -183,6 +184,7 @@ bool two_paths(graph* map, struct device* point1,  struct device* point2){
     if ( ! path1->next || // found ourself ?? WTF
         compare_device(path1->next->data, point2 )){ // two directally connected elements
         ll_disassemble(path1);
+        
         return true; //i guess???
     }
     
@@ -194,6 +196,7 @@ bool two_paths(graph* map, struct device* point1,  struct device* point2){
     // copy graph
     graph* doppelganger = graph_clone(map);
    
+
     struct llist* cur = path1->next;
     struct device* temp = NULL;
     struct device* prev = NULL;
@@ -206,6 +209,7 @@ bool two_paths(graph* map, struct device* point1,  struct device* point2){
             exit(0);
         }
         memset(temp, 0, sizeof(*temp));
+        //make temmp node put it in
         temp->device_id = INT_MAX-count;
         temp->altitude = EXTRA_NODE;
         graph_add_node(doppelganger, temp, compare_pointers);
@@ -214,6 +218,8 @@ bool two_paths(graph* map, struct device* point1,  struct device* point2){
         if(! adj_list){
             break;
         }
+        
+        //make all outgoing pointers come from temp node
         struct llist* head = adj_list;
         while ( adj_list && adj_list->data){
             graph_add_edge(doppelganger, temp, adj_list->data, 1, compare_device);
@@ -222,11 +228,14 @@ bool two_paths(graph* map, struct device* point1,  struct device* point2){
         }
         if( ! prev ){ // first time through
             
-            graph_add_edge(doppelganger, cur->data, point1, 0, compare_device);
+            //graph_add_edge(doppelganger, cur->data, point1, 0, compare_device);
+            graph_remove_edge(doppelganger, point1, cur->data, compare_device);
             
         } else {
-            graph_add_edge(doppelganger, cur->data, prev, 0, compare_device);
+            //graph_add_edge(doppelganger, cur->data, prev, 0, compare_device);
+            graph_remove_edge(doppelganger, prev, cur->data, compare_device);
         }
+        
         graph_add_edge(doppelganger, temp, cur->data, 0, compare_device);
         
         count++;        // bookkeeping
@@ -234,7 +243,7 @@ bool two_paths(graph* map, struct device* point1,  struct device* point2){
         cur = cur->next;
         ll_disassemble(head);
     }while (cur->next);
-    graph_add_edge(doppelganger, cur->data, prev, 0, compare_device);
+    graph_remove_edge(doppelganger, cur->data, point2, compare_device);
  
     struct llist* list2 = dijkstra(doppelganger, point1, point2);
     struct llist* an_head = added_nodes;
@@ -252,6 +261,8 @@ bool two_paths(graph* map, struct device* point1,  struct device* point2){
     if ( list2 ){ // dijkstra returns a path from a to b if it exists // else NULL
         rValue = true;
     }
+            
+
     ll_disassemble(list2);
     return  rValue;
     
@@ -283,17 +294,18 @@ struct llist* can_remove(struct graph* g){
     size_t nodes = graph_node_count(map);
     size_t edges = graph_edge_count(map);
     
-    if ( nodes == 1 ||(nodes == 2 && edges >= 1)){
+    if ( nodes == 1 ||(nodes == 2 && edges <= 1)){
         graph_destroy(map);
         return NULL;
     }
     struct llist* devices = NULL;
     struct llist* removed = NULL;
     devices = graph_list_nodes(map);
-    if (edges < nodes ){ // don't bother trying
-        graph_disassemble(map);
-        return devices;
-    }
+    //if (edges < nodes ){ // don't bother trying
+    //    graph_disassemble(map);
+    //    return devices;
+    //}
+    
     // node count -- edge count check
     // create llist* removed nodes
     // create llist* remaining nodes
@@ -302,6 +314,7 @@ struct llist* can_remove(struct graph* g){
     bool done;
     do{
         done = true;
+        
         if (nodes > 2 ){
             d_head = devices;
             struct llist* prev = NULL;
@@ -315,6 +328,7 @@ struct llist* can_remove(struct graph* g){
                     count ++;
                     adj_list = adj_list->next;
                 }
+                
                 ll_disassemble(al_head);
                 if ( count == 1 || count == 0 ){
                     graph_remove_node(map, devices->data, compare_device);
@@ -602,8 +616,11 @@ struct llist* is_valid_graph(graph* map, struct llist* devices){
         
         // check to see if remaining elements are doubly connected
         while( to_check ){
+            printf ("here (%d) - (%d)\n", ((struct device*)to_check->data)->device_id, 
+                        ((struct device*)devices->data)->device_id);
             if ( ! two_paths(map, to_check->data, devices->data)){
                     // found 2 not doubbly connected return them
+                    printf ("here\n");
                 ll_add(&rValue, to_check->data);
                 ll_add(&rValue, devices->data);
 
