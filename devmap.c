@@ -283,7 +283,7 @@ struct llist* can_remove(struct graph* g){
     size_t edges = graph_edge_count(map);
     
     if ( nodes == 1 ||(nodes == 2 && edges >= 1)){
-        graph_disassemble(map);
+        graph_destroy(map);
         return NULL;
     }
     struct llist* devices = NULL;
@@ -306,6 +306,7 @@ struct llist* can_remove(struct graph* g){
             struct llist* prev = NULL;
             int count = 0;
             while ( devices ){
+                
                 struct llist* adj_list = graph_adjacent_to(map, devices->data, compare_device);
                 struct llist* al_head = adj_list;
                 count = 0;
@@ -325,10 +326,15 @@ struct llist* can_remove(struct graph* g){
                     }else{
                         prev->next = devices;
                     }
+                    nodes = graph_node_count(map);
                     if(nodes == 3){
+                        graph_disassemble(map);
                         devices = d_head;
                         ll_disassemble(al_head);
-                        return devices;
+                        printf("here\n");
+                        //ll_destroy(removed);
+                        return removed;
+                        //return devices;
                         //goto DONE;
                     }
                     done = false; // if we have to remove anything we need to loop again;
@@ -342,7 +348,10 @@ struct llist* can_remove(struct graph* g){
             devices = d_head;
             nodes = graph_node_count(map);
         }else {
-            return devices;
+            printf("here\n");
+            graph_disassemble(map);
+            //ll_disassemble(removed);
+            return removed;
         }
     //DONE: // TODO remove below line
     //done = true;
@@ -644,7 +653,7 @@ graph* test_makeGraph(struct device* test, struct oct_tree** tree){
     while (test){
         head = head->next;
         test->next=NULL;
-//        printf("inserting (%d) \n", test->device_id);
+        printf("inserting (%d) \n", test->device_id);
 //        printf("(%.6f) alt, (%.8f) lati, (%.8f) long\n", test->altitude, test->latitude, test->longitude);
    //     printTree((*tree), 0);
     //    int a;f
