@@ -760,6 +760,7 @@ int main(int argc, const char* argv[]){
     bool valid = false;
     if( check && !check->next){
         valid = true;
+        printf("graph is valid\n");
     }
 
 
