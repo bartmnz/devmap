@@ -66,7 +66,8 @@ bool is_connected(struct device* to_check, struct device* against){
    // printf("from (%d) to (%d)", to_check->device_id, against->device_id);
    // printf(" distance is : (%.2f)\n", sqrt(distance*distance + altitude*altitude));
     double result = sqrt(distance*distance + altitude*altitude);
-    return  result < 5 && result > .381 ? true : false; // between 5 meters and 1.25 feet
+    printf( "(%d) to (%d) is %.2f\n", to_check->device_id, against->device_id, result);
+    return  (result < 5 && result > .381) ? true : false; // between 5 meters and 1.25 feet
 }
 
 /* Function determines if there are two disjointed paths between the specified devices
