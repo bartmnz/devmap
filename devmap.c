@@ -123,6 +123,7 @@ struct llist* dijkstra(graph* map, struct device* point1, struct device* point2)
                     while ( seen_before ){
                         if ( compare_device(seen_before->data, list_of_connections->data)){
                             saw_it = true;
+                            break;
                         }
                         seen_before = seen_before->next;
                     }
@@ -143,8 +144,13 @@ struct llist* dijkstra(graph* map, struct device* point1, struct device* point2)
             ll_disassemble(cur_path);
             ll_disassemble(loc_head);
         }else{    
-            ll_disassemble(simple);
+            ll_disassemble(cur_path);
         }
+    }
+    printf("here1");
+    while( ! queue_is_empty(the_list)){
+        
+        ll_disassemble(queue_dequeue(the_list));
     }
     
     queue_disassemble(the_list);
@@ -345,7 +351,8 @@ struct llist* can_remove(struct graph* g){
                     if(nodes == 2){
                         graph_disassemble(map);
                         devices = d_head;
-                        ll_disassemble(al_head);
+                        ll_disassemble(d_head);
+                        //ll_disassemble(al_head);
                         printf("here\n");
                         //ll_destroy(removed);
                         return removed;
@@ -365,6 +372,7 @@ struct llist* can_remove(struct graph* g){
         }else {
             printf("here\n");
             graph_disassemble(map);
+            ll_disassemble(d_head);
             //ll_disassemble(removed);
             return removed;
         }
@@ -431,6 +439,7 @@ struct llist *find_biggest_sub_network(graph* map, struct llist* devices){
                 //are not connected by two disjointed paths 
         
         struct llist* connected_to = NULL;
+        struct llist* ct_head = connected_to;
         struct llist* first = NULL;
         struct llist* second = NULL;
         ll_add(&first, notConnected->data);
@@ -485,7 +494,7 @@ struct llist *find_biggest_sub_network(graph* map, struct llist* devices){
         
         // now we need to compare the sub_networks 
         struct llist* best_graph = NULL;
-        struct llist* ct_head = connected_to;
+        //struct llist* ct_head = connected_to;
         int maxsize = 0;
         // iterate over the list of sub_networks
         while ( connected_to ){
@@ -508,8 +517,8 @@ struct llist *find_biggest_sub_network(graph* map, struct llist* devices){
                 ll_disassemble(result);
             }
             //clean up
-            struct llist* to_kill = connected_to->data;
-            connected_to = connected_to->next;
+            struct llist* to_kill = ct_head->data;
+            ct_head = ct_head->next;
             ll_disassemble(to_kill);
         }
         //clean up
